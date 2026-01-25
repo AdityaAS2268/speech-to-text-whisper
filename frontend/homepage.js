@@ -105,7 +105,25 @@ function stopRecording() {
 /* =====================
    FORMAT
 ===================== */
+function applySpecialRules(text) {
+  // 1️⃣ Handle spoken quotes
+  text = text.replace(
+    /\bquotes\s+(.*?)\s+closed quotes\b/gi,
+    '"$1"'
+  );
+
+  // 2️⃣ Force CPT codes to new paragraph
+  text = text.replace(
+    /\s*(CPT code\s*\d+)/gi,
+    '\n$1'
+  );
+
+  return text;
+}
+
 function formatTranscript(text) {
+  text = applySpecialRules(text);
+
   const code = splitCodeInput.value.trim();
   return text
     .split(code)
@@ -244,4 +262,16 @@ async function transcribeWithFastAPI(file) {
         whisperBtn.disabled = false;
         whisperBtn.textContent = "🎙️ Transcribe with Whisper";
     }
+}
+
+function showNotification(message, type = "error") {
+  notification.textContent = message;
+  notification.style.background =
+    type === "success" ? "#16a34a" : "#dc2626";
+
+  notification.classList.add("show");
+
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 3000);
 }
