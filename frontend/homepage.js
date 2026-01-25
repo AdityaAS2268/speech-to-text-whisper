@@ -133,7 +133,7 @@ function applySpecialRules(text) {
 
   /* 5️⃣ Force CPT / CBT into paragraph break AND REMOVE IT */
   text = text.replace(
-    /\s*(C[PB]T\s*code\s*\d+)\s*/gi,
+    /\s*(C[PB][DT]\s*code\s*\d+)\s*/gi,
     '\n'
   );
 
