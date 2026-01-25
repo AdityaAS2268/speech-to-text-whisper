@@ -1,6 +1,16 @@
 fastapi
 uvicorn
 python-multipart
-openai-whisper
-torch
+numpy
+scipy
+soundfile
 ffmpeg-python
+
+# CPU-only PyTorch
+torch==2.1.2+cpu
+torchaudio==2.1.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Whisper
+openai-whisper
+
