@@ -106,35 +106,63 @@ function stopRecording() {
    FORMAT
 ===================== */
 function applySpecialRules(text) {
-  // 1️⃣ Handle spoken quotes
+  // 1️⃣ Remove leading numbers like "09,", "08.", "1)"
   text = text.replace(
-    /\bquotes\s+(.*?)\s+closed quotes\b/gi,
-    '"$1"'
+    /(^|\n)\s*\d{1,3}[\.,)]?\s*/g,
+    '$1'
   );
 
-  // 2️⃣ Force CPT codes to new paragraph
+  // 2️⃣ Remove leading punctuation at paragraph start
   text = text.replace(
-    /\s*(CPT code\s*\d+)/gi,
-    '\n$1'
+    /(^|\n)\s*[.,:;–\-]+(\s*)/g,
+    '$1'
+  );
+
+  // 3️⃣ Spoken quotes → real quotes
+  text = text
+    .replace(/\b(open quote|quotes?)\b/gi, '"')
+    .replace(/\b(close quote|end quote|closed quotes?)\b/gi, '"');
+
+  // 4️⃣ REMOVE CPT / CBT + code entirely but force new paragraph
+  text = text.replace(
+    /\b(CPT|CBT)\b\s*(code)?\s*\d{2,6}/gi,
+    '\n'
   );
 
   return text;
 }
 
 function formatTranscript(text) {
-  text = applySpecialRules(text);
-
   const code = splitCodeInput.value.trim();
+
+  text = text
+    // 🔹 Remove CPT/CBT + codes but force new paragraph
+    .replace(/\b(CPT|CBT)\b\s*(code)?\s*\d{2,6}/gi, "\n")
+
+    // 🔹 Remove numbering at paragraph start (08., 09,)
+    .replace(/(^|\n)\s*\d{1,3}[.,]?\s+/g, "$1")
+
+    // 🔹 Spoken quotes → real quotes
+    .replace(/\b(open quote|quotes?)\b/gi, '"')
+    .replace(/\b(close quote|end quote)\b/gi, '"');
+
   return text
     .split(code)
     .map(p => p.trim())
     .filter(Boolean)
     .map(p => {
-      let t = p[0].toUpperCase() + p.slice(1);
-      if (!/[.!?]$/.test(t)) t += '.';
-      return `<p>${t}</p>`;
+      // 🔹 Remove punctuation at start
+      p = p.replace(/^[\s,.:;-]+/, "");
+
+      // 🔹 Capitalize first letter
+      p = p.charAt(0).toUpperCase() + p.slice(1);
+
+      // 🔹 Ensure sentence ending
+      if (!/[.!?]$/.test(p)) p += ".";
+
+      return `<p>${p}</p>`;
     })
-    .join('');
+    .join("");
 }
 
 /* =====================
