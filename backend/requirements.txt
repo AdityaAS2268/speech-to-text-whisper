@@ -1,8 +1,7 @@
 fastapi
 uvicorn
-python-multipart
-ffmpeg-python
 openai-whisper
+ffmpeg-python
+python-multipart
+numpy
 
-torch==2.5.1
-torchaudio==2.5.1
