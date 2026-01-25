@@ -23,7 +23,6 @@ const whisperBtn = document.getElementById('whisperBtn');
 const filePickerBtn = document.getElementById('filePickerBtn');
 const fileName = document.getElementById('fileName');
 
-const HF_TOKEN = "PASTE_YOUR_TOKEN_HERE";
 
 /* =====================
    STATE
@@ -201,39 +200,37 @@ darkToggle.onclick = () => {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
 };
 
-async function transcribeWithWhisper(file) {
-    showNotification("Uploading audio to Whisper...", "success");
+whisperBtn.addEventListener("click", () => {
+    if (!audioFileInput.files.length) {
+        showNotification("Please select an audio file");
+        return;
+    }
+
+    const file = audioFileInput.files[0];
+    transcribeWithFastAPI(file);
+});
+
+async function transcribeWithFastAPI(file) {
+    showNotification("Uploading audio for transcription...", "success");
 
     whisperBtn.disabled = true;
     whisperBtn.textContent = "⏳ Transcribing...";
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("language", languageSelect.value.split("-")[0]);
 
     try {
-        const response = await fetch(
-            "https://api-inference.huggingface.co/models/openai/whisper-small",
-            {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${HF_TOKEN}`
-                },
-                body: formData
-            }
-        );
+        const response = await fetch("http://127.0.0.1:8000/transcribe", {
+            method: "POST",
+            body: formData
+        });
 
         if (!response.ok) {
-            throw new Error("Whisper failed");
+            throw new Error("Transcription failed");
         }
 
         const result = await response.json();
 
-        if (!result.text) {
-            throw new Error("No transcription returned");
-        }
-
-        // 🔥 Inject into your existing pipeline
         finalTranscript = result.text.trim();
         transcript.innerHTML = formatTranscript(finalTranscript);
         updateStats();
@@ -242,44 +239,9 @@ async function transcribeWithWhisper(file) {
 
     } catch (err) {
         console.error(err);
-        showNotification("Whisper error. Try again.");
+        showNotification("Backend error. Check FastAPI server.");
     } finally {
         whisperBtn.disabled = false;
         whisperBtn.textContent = "🎙️ Transcribe with Whisper";
     }
 }
-
-whisperBtn.addEventListener("click", () => {
-    if (!audioFileInput.files.length) {
-        showNotification("Please select an audio file");
-        return;
-    }
-
-    const file = audioFileInput.files[0];
-    transcribeWithWhisper(file);
-});
-
-audioFileInput.onchange = () => {
-  if (!audioFileInput.files.length) return;
-
-  const file = audioFileInput.files[0];
-
-  const allowedTypes = [
-    "audio/mpeg",
-    "audio/wav",
-    "audio/mp4",
-    "video/mp4",
-    "audio/x-m4a"
-  ];
-
-  if (!allowedTypes.includes(file.type)) {
-    showNotification("Unsupported file type. Use MP3, WAV, M4A, or MP4.");
-    audioFileInput.value = "";
-    fileName.textContent = "No file selected";
-    whisperBtn.disabled = true;
-    return;
-  }
-
-  fileName.textContent = file.name;
-  whisperBtn.disabled = false;
-};
