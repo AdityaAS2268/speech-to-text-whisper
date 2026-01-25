@@ -1,22 +1,55 @@
-import gradio as gr
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import whisper
+import tempfile
+import os
+import subprocess
 
-# Load Whisper model (small is good for free CPU)
-model = whisper.load_model("small")
+app = FastAPI()
 
-def transcribe(audio_path):
-    if audio_path is None:
-        return ""
-
-    result = model.transcribe(audio_path)
-    return result["text"]
-
-demo = gr.Interface(
-    fn=transcribe,
-    inputs=gr.Audio(type="filepath", label="Upload audio"),
-    outputs=gr.Textbox(label="Transcription"),
-    title="Whisper Speech-to-Text",
-    description="Upload an audio file and get transcription using OpenAI Whisper"
+# Allow frontend (HTML/JS) to talk to backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-demo.launch()
+# Load Whisper once
+model = whisper.load_model("small")
+
+def convert_to_wav(input_path):
+    output_path = input_path.replace(".mp4", ".wav")
+    subprocess.run(
+        ["ffmpeg", "-y", "-i", input_path, output_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    return output_path
+
+@app.post("/transcribe")
+async def transcribe_audio(file: UploadFile = File(...)):
+    # Save uploaded file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=file.filename) as temp:
+        temp.write(await file.read())
+        temp_path = temp.name
+
+    # Convert MP4 → WAV if needed
+    if temp_path.endswith(".mp4"):
+        audio_path = convert_to_wav(temp_path)
+    else:
+        audio_path = temp_path
+
+    # Transcribe
+    result = model.transcribe(audio_path)
+
+    # Cleanup
+    os.remove(temp_path)
+    if audio_path != temp_path:
+        os.remove(audio_path)
+
+    return {"text": result["text"]}
+
+@app.get("/")
+def root():
+    return {"message": "FastAPI Whisper backend is running"}
