@@ -106,63 +106,62 @@ function stopRecording() {
    FORMAT
 ===================== */
 function applySpecialRules(text) {
-  // 1️⃣ Remove leading numbers like "09,", "08.", "1)"
+
+  /* 1️⃣ Remove leading numbering (08, 09., 1), etc.) */
   text = text.replace(
-    /(^|\n)\s*\d{1,3}[\.,)]?\s*/g,
+    /(^|\n)\s*\d{1,3}[\.,)]?\s+/g,
     '$1'
   );
 
-  // 2️⃣ Remove leading punctuation at paragraph start
+  /* 2️⃣ Remove leading punctuation at paragraph start */
   text = text.replace(
-    /(^|\n)\s*[.,:;–\-]+(\s*)/g,
+    /(^|\n)\s*[.,:;–\-]+\s*/g,
     '$1'
   );
 
-  // 3️⃣ Spoken quotes → real quotes
-  text = text
-    .replace(/\b(open quote|quotes?)\b/gi, '"')
-    .replace(/\b(close quote|end quote|closed quotes?)\b/gi, '"');
-
-  // 4️⃣ REMOVE CPT / CBT + code entirely but force new paragraph
+  /* 3️⃣ Handle spoken quotes → "..." */
   text = text.replace(
-    /\b(CPT|CBT)\b\s*(code)?\s*\d{2,6}/gi,
+    /\bquotes\s+(.*?)\s+(?:closed|close)\b/gi,
+    '"$1"'
+  );
+
+  /* 4️⃣ Remove stray 'close' or 'closed' left behind */
+  text = text.replace(
+    /\b(close|closed)\b/gi,
+    ''
+  );
+
+  /* 5️⃣ Force CPT / CBT into paragraph break AND REMOVE IT */
+  text = text.replace(
+    /\s*(C[PB]T\s*code\s*\d+)\s*/gi,
     '\n'
   );
 
-  return text;
+  /* 6️⃣ Normalize whitespace after edits */
+  text = text.replace(/\n{2,}/g, '\n');
+
+  return text.trim();
 }
 
 function formatTranscript(text) {
+  text = applySpecialRules(text);
+
   const code = splitCodeInput.value.trim();
 
-  text = text
-    // 🔹 Remove CPT/CBT + codes but force new paragraph
-    .replace(/\b(CPT|CBT)\b\s*(code)?\s*\d{2,6}/gi, "\n")
-
-    // 🔹 Remove numbering at paragraph start (08., 09,)
-    .replace(/(^|\n)\s*\d{1,3}[.,]?\s+/g, "$1")
-
-    // 🔹 Spoken quotes → real quotes
-    .replace(/\b(open quote|quotes?)\b/gi, '"')
-    .replace(/\b(close quote|end quote)\b/gi, '"');
-
   return text
-    .split(code)
+    .split(/\n+/)            // 👈 paragraph split now works reliably
     .map(p => p.trim())
     .filter(Boolean)
     .map(p => {
-      // 🔹 Remove punctuation at start
-      p = p.replace(/^[\s,.:;-]+/, "");
+      // Capitalize first letter
+      let t = p.charAt(0).toUpperCase() + p.slice(1);
 
-      // 🔹 Capitalize first letter
-      p = p.charAt(0).toUpperCase() + p.slice(1);
+      // Ensure punctuation at end
+      if (!/[.!?]$/.test(t)) t += '.';
 
-      // 🔹 Ensure sentence ending
-      if (!/[.!?]$/.test(p)) p += ".";
-
-      return `<p>${p}</p>`;
+      return `<p>${t}</p>`;
     })
-    .join("");
+    .join('');
 }
 
 /* =====================
