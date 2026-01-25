@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Speech to Text</title>
+  <link rel="stylesheet" href="homepage.css" />
+</head>
+
+<body>
+  <div class="container">
+
+    <header class="header">
+      <h1>🎤 Speech to Text</h1>
+      <p>Click the microphone to start recording</p>
+
+      <button id="darkToggle" class="btn btn-secondary btn-small">
+        🌙 Dark Mode
+      </button>
+    </header>
+
+    <!-- MODE TOGGLE -->
+    <div class="mode-toggle">
+      <button id="dictationMode" class="mode-btn active">🎙️ Dictation</button>
+      <button id="uploadMode" class="mode-btn">📂 Upload</button>
+    </div>
+
+    <!-- UPLOAD MODE -->
+    <div id="uploadSection" class="upload-section hidden">
+
+      <input type="file" id="audioFile" accept="audio/*,video/mp4,.mp4" hidden />
+
+      <button id="filePickerBtn" class="file-picker-btn" type="button">
+        🎧 Select audio file
+      </button>
+
+      <div id="fileName" class="file-name">
+        No file selected
+      </div>
+
+      <!-- ✅ REMOVED `disabled` -->
+      <button
+        id="whisperBtn"
+        class="btn btn-primary btn-small"
+        style="margin-top: 14px;"
+      >
+        🎙️ Transcribe with Whisper
+      </button>
+
+      <p class="hint">Supported formats: MP3, WAV, M4A</p>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div class="language-select">
+      <select id="languageSelect">
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="hi-IN">Hindi</option>
+      </select>
+    </div>
+
+    <!-- DICTATION CONTROLS -->
+    <div id="dictationControls">
+      <div class="status">
+        <div id="statusIndicator" class="status-indicator status-idle">
+          Ready to listen
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="startBtn" class="btn btn-primary">
+          ▶ Start Recording
+        </button>
+        <button id="stopBtn" class="btn btn-secondary" disabled>
+          ⏹ Stop
+        </button>
+      </div>
+    </div>
+
+    <!-- PARAGRAPH SPLIT -->
+    <div class="paragraph-control">
+      <label>Paragraph split code:</label>
+      <input id="splitCode" value="01234" />
+    </div>
+
+    <!-- TRANSCRIPT -->
+    <div id="transcript" class="transcript-area"></div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <button id="copyBtn" class="btn btn-secondary btn-small">📋 Copy</button>
+      <button id="clearBtn" class="btn btn-secondary btn-small">🗑 Clear</button>
+      <button id="exportBtn" class="btn btn-secondary btn-small">📄 Export TXT</button>
+      <button id="demoBtn" class="btn btn-secondary btn-small">🧪 Demo</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <span id="wordCount">0 words</span>
+      <span id="charCount">0 characters</span>
+    </div>
+
+  </div>
+
+  <div id="notification" class="notification"></div>
+  <script src="homepage.js"></script>
+</body>
+</html>

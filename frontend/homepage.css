@@ -1,0 +1,461 @@
+/* =====================
+   CSS VARIABLES
+===================== */
+:root {
+  --accent: #38bdf8;
+
+  --dark-bg: #020617;
+  --dark-surface: #0f172a;
+  --dark-border: #334155;
+  --dark-text: #e5e7eb;
+  --dark-muted: #94a3b8;
+}
+
+/* =====================
+   RESET & BASE
+===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  transition: background 0.4s ease;
+}
+
+.hint
+{
+    margin-top: 12px;
+    color: purple;
+}
+
+/* =====================
+   CONTAINER (CARD)
+===================== */
+.container {
+  background: #ffffff;
+  color: #111827;
+  width: 100%;
+  max-width: 720px;
+  padding: 42px;
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* =====================
+   HEADER
+===================== */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.header p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 14px;
+}
+
+/* =====================
+   BUTTONS
+===================== */
+.btn {
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  padding: 14px 32px;
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.45);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+  padding: 12px 22px;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn-small {
+  font-size: 14px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =====================
+   MODE TOGGLE
+===================== */
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.mode-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #e5e7eb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+/* =====================
+   SECTIONS & CONTROLS
+===================== */
+.language-select,
+.status,
+.controls,
+.paragraph-control,
+.actions,
+.stats {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+/* =====================
+   LANGUAGE SELECT
+===================== */
+.language-select select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+/* =====================
+   PARAGRAPH CONTROL
+===================== */
+.paragraph-control {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.paragraph-control input {
+  width: 90px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  text-align: center;
+}
+
+/* =====================
+   TRANSCRIPT AREA
+===================== */
+.transcript-area {
+  margin-top: 22px;
+  padding: 22px;
+  min-height: 220px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+}
+
+.transcript-area:empty::before {
+  content: "Your transcribed text will appear here...";
+  color: #9ca3af;
+}
+
+.transcript-area p {
+  background: white;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+/* =====================
+   UPLOAD SECTION
+===================== */
+.upload-section {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+#dictationControls.hidden {
+  display: none;
+}
+
+/* =====================
+   ACTIONS
+===================== */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* =====================
+   STATS
+===================== */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* =====================
+   NOTIFICATION
+===================== */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 14px 18px;
+  background: #dc2626;
+  color: white;
+  border-radius: 8px;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.notification.show {
+  opacity: 1;
+}
+
+/* =====================
+   DARK MODE
+===================== */
+body.dark {
+  background:
+    radial-gradient(circle at top,
+      rgba(56, 189, 248, 0.15),
+      transparent 60%
+    ),
+    linear-gradient(135deg, #020617, #0f172a);
+}
+
+body.dark .container {
+  background: var(--dark-surface);
+  color: var(--dark-text);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.dark .header h1 {
+  color: #f8fafc;
+}
+
+body.dark .header p {
+  color: var(--dark-muted);
+}
+
+/* Buttons */
+body.dark .btn-primary {
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.45);
+}
+
+body.dark .btn-secondary,
+body.dark .mode-btn {
+  background: #334155;
+  color: var(--dark-text);
+}
+
+body.dark .mode-btn.active {
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  color: #020617;
+}
+
+/* Language dropdown */
+body.dark .language-select select {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+}
+
+body.dark .language-select select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+}
+
+/* Paragraph input */
+body.dark .paragraph-control label {
+  color: var(--dark-muted);
+}
+
+body.dark .paragraph-control input {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+}
+
+body.dark .paragraph-control input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+}
+
+/* Transcript */
+body.dark .transcript-area {
+  background: var(--dark-bg);
+  border-color: var(--dark-border);
+}
+
+body.dark .transcript-area p {
+  background: rgba(56, 189, 248, 0.08);
+  border-left: 3px solid var(--accent);
+}
+
+body.dark .stats {
+  color: var(--dark-muted);
+}
+
+/* =====================
+   RESPONSIVE
+===================== */
+@media (max-width: 600px) {
+  .container {
+    padding: 28px;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+}
+
+/* =====================
+   RECORDING GLOW EFFECT
+===================== */
+.recording-glow {
+  position: relative;
+  animation: pulseGlow 1.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 16px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+/* =====================
+   PARAGRAPH SPLIT FEEDBACK
+===================== */
+.split-flash {
+  animation: flashBorder 0.6s ease;
+}
+
+@keyframes flashBorder {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0);
+  }
+}
+
+/* =====================
+   CUSTOM FILE PICKER
+===================== */
+
+.file-picker-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 14px 22px;
+    border-radius: 999px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+
+    background: rgba(255, 255, 255, 0.06);
+    color: #e5e7eb;
+
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.file-picker-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+
+.file-name {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+/* Dark mode emphasis */
+body.dark .file-picker-btn {
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+body.dark .file-picker-btn:hover {
+    background: rgba(56, 189, 248, 0.12);
+}

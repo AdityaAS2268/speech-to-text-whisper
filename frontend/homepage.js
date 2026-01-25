@@ -1,0 +1,285 @@
+/* =====================
+   ELEMENT REFERENCES
+===================== */
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const transcript = document.getElementById('transcript');
+const statusIndicator = document.getElementById('statusIndicator');
+const copyBtn = document.getElementById('copyBtn');
+const clearBtn = document.getElementById('clearBtn');
+const exportBtn = document.getElementById('exportBtn');
+const demoBtn = document.getElementById('demoBtn');
+const languageSelect = document.getElementById('languageSelect');
+const notification = document.getElementById('notification');
+const splitCodeInput = document.getElementById('splitCode');
+const dictationMode = document.getElementById('dictationMode');
+const uploadMode = document.getElementById('uploadMode');
+const uploadSection = document.getElementById('uploadSection');
+const dictationControls = document.getElementById('dictationControls');
+const darkToggle = document.getElementById('darkToggle');
+
+const audioFileInput = document.getElementById('audioFile');
+const whisperBtn = document.getElementById('whisperBtn');
+const filePickerBtn = document.getElementById('filePickerBtn');
+const fileName = document.getElementById('fileName');
+
+const HF_TOKEN = "PASTE_YOUR_TOKEN_HERE";
+
+/* =====================
+   STATE
+===================== */
+let recognition = null;
+let finalTranscript = '';
+let isRecording = false;
+
+/* =====================
+   THEME RESTORE
+===================== */
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark');
+  darkToggle.textContent = '☀️ Light Mode';
+}
+
+/* =====================
+   SPEECH RECOGNITION
+===================== */
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    startBtn.classList.add('recording-glow');
+
+    statusIndicator.className = 'status-indicator status-listening';
+    statusIndicator.innerHTML = '🎙 Listening...';
+  };
+
+  recognition.onresult = (e) => {
+    let interim = '';
+
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const text = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        finalTranscript += text + ' ';
+      } else {
+        interim += text;
+      }
+    }
+
+    transcript.innerHTML =
+      formatTranscript(finalTranscript) +
+      `<p class="interim">${interim}</p>`;
+
+    updateStats();
+    transcript.scrollTop = transcript.scrollHeight;
+  };
+
+  recognition.onend = stopRecording;
+}
+
+/* =====================
+   CONTROLS
+===================== */
+startBtn.onclick = () => {
+  recognition.lang = languageSelect.value;
+  recognition.start();
+};
+
+stopBtn.onclick = () => recognition.stop();
+
+function stopRecording() {
+  isRecording = false;
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  startBtn.classList.remove('recording-glow');
+
+  statusIndicator.className = 'status-indicator status-idle';
+  statusIndicator.textContent = 'Ready to listen';
+}
+
+/* =====================
+   FORMAT
+===================== */
+function formatTranscript(text) {
+  const code = splitCodeInput.value.trim();
+  return text
+    .split(code)
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => {
+      let t = p[0].toUpperCase() + p.slice(1);
+      if (!/[.!?]$/.test(t)) t += '.';
+      return `<p>${t}</p>`;
+    })
+    .join('');
+}
+
+/* =====================
+   STATS
+===================== */
+function updateStats() {
+  document.getElementById('wordCount').textContent =
+    finalTranscript.trim()
+      ? finalTranscript.trim().split(/\s+/).length + ' words'
+      : '0 words';
+
+  document.getElementById('charCount').textContent =
+    finalTranscript.length + ' characters';
+}
+
+/* =====================
+   ACTIONS
+===================== */
+copyBtn.onclick = () => navigator.clipboard.writeText(transcript.innerText);
+clearBtn.onclick = () => { finalTranscript = ''; transcript.innerHTML = ''; updateStats(); };
+exportBtn.onclick = () => {
+  const blob = new Blob([transcript.innerText], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'transcript.txt';
+  a.click();
+};
+
+demoBtn.onclick = () => {
+  finalTranscript = 'hello this is a demo 01234 this shows paragraph splitting';
+  transcript.innerHTML = formatTranscript(finalTranscript);
+  updateStats();
+};
+
+/* =====================
+   MODE TOGGLE
+===================== */
+dictationMode.onclick = () => {
+  dictationMode.classList.add('active');
+  uploadMode.classList.remove('active');
+  uploadSection.classList.add('hidden');
+  dictationControls.classList.remove('hidden');
+};
+
+uploadMode.onclick = () => {
+  uploadMode.classList.add('active');
+  dictationMode.classList.remove('active');
+  uploadSection.classList.remove('hidden');
+  dictationControls.classList.add('hidden');
+};
+
+/* =====================
+   FILE PICKER
+===================== */
+filePickerBtn.onclick = () => audioFileInput.click();
+
+audioFileInput.onchange = () => {
+    if (audioFileInput.files.length > 0) {
+        const file = audioFileInput.files[0];
+
+        fileName.textContent = file.name;
+
+        whisperBtn.disabled = false;
+        whisperBtn.style.pointerEvents = "auto";
+        whisperBtn.style.opacity = "1";
+    } else {
+        fileName.textContent = "No file selected";
+
+        whisperBtn.disabled = true;
+        whisperBtn.style.pointerEvents = "none";
+        whisperBtn.style.opacity = "0.5";
+    }
+};
+
+/* =====================
+   DARK MODE
+===================== */
+darkToggle.onclick = () => {
+  const dark = document.body.classList.toggle('dark');
+  darkToggle.textContent = dark ? '☀️ Light Mode' : '🌙 Dark Mode';
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+};
+
+async function transcribeWithWhisper(file) {
+    showNotification("Uploading audio to Whisper...", "success");
+
+    whisperBtn.disabled = true;
+    whisperBtn.textContent = "⏳ Transcribing...";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("language", languageSelect.value.split("-")[0]);
+
+    try {
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/openai/whisper-small",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${HF_TOKEN}`
+                },
+                body: formData
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Whisper failed");
+        }
+
+        const result = await response.json();
+
+        if (!result.text) {
+            throw new Error("No transcription returned");
+        }
+
+        // 🔥 Inject into your existing pipeline
+        finalTranscript = result.text.trim();
+        transcript.innerHTML = formatTranscript(finalTranscript);
+        updateStats();
+
+        showNotification("Transcription complete!", "success");
+
+    } catch (err) {
+        console.error(err);
+        showNotification("Whisper error. Try again.");
+    } finally {
+        whisperBtn.disabled = false;
+        whisperBtn.textContent = "🎙️ Transcribe with Whisper";
+    }
+}
+
+whisperBtn.addEventListener("click", () => {
+    if (!audioFileInput.files.length) {
+        showNotification("Please select an audio file");
+        return;
+    }
+
+    const file = audioFileInput.files[0];
+    transcribeWithWhisper(file);
+});
+
+audioFileInput.onchange = () => {
+  if (!audioFileInput.files.length) return;
+
+  const file = audioFileInput.files[0];
+
+  const allowedTypes = [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/mp4",
+    "video/mp4",
+    "audio/x-m4a"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    showNotification("Unsupported file type. Use MP3, WAV, M4A, or MP4.");
+    audioFileInput.value = "";
+    fileName.textContent = "No file selected";
+    whisperBtn.disabled = true;
+    return;
+  }
+
+  fileName.textContent = file.name;
+  whisperBtn.disabled = false;
+};
