@@ -4,5 +4,5 @@ python-multipart
 ffmpeg-python
 openai-whisper
 
-torch==2.1.2
-torchaudio==2.1.2
+torch==2.5.1
+torchaudio==2.5.1
