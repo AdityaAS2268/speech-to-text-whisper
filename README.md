@@ -54,7 +54,7 @@ speech-to-text-whisper/
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/your-username/speech-to-text-whisper.git
+git clone https://github.com/AdityaAS2268/speech-to-text-whisper.git
 cd speech-to-text-whisper
 ```
 
