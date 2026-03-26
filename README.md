@@ -143,7 +143,7 @@ The system applies rule-based transformations to improve readability:
 
 ## 👨‍💻 Author
 
-**Aditya Sai Sudharsan**
+**Aditya A S**
 
 ---
 
